@@ -1,5 +1,5 @@
 ######################################################################
-#  Copyright (c) 2008-2016, Alliance for Sustainable Energy.  
+#  Written by Justin Shultz.  
 #  All rights reserved.
 #  
 #  This library is free software; you can redistribute it and/or
