@@ -42,11 +42,13 @@ class SetMultiplier < OpenStudio::Ruleset::ModelUserScript
   # model is an OpenStudio::Model::Model, runner is a OpenStudio::Ruleset::UserScriptRunner
   def run(model, runner, user_arguments)
     super(model, runner, user_arguments)
-   
-    # if not runner.validateUserArguments(arguments(model),user_arguments)  
-    #   return false
-    # end
 
+    # check that the input if valid
+    if not runner.validateUserArguments(arguments(model),user_arguments)  
+      return false
+    end
+
+    # check the user means to execute this action 
     continue_operation = runner.yesNoPrompt("This will set the multiplier in the selected thermal zones. Click Yes to proceed, click No to cancel.")
     if not continue_operation
       puts "Operation canceled, your model was not altered!"
@@ -54,18 +56,21 @@ class SetMultiplier < OpenStudio::Ruleset::ModelUserScript
       return true
     end
 
+    # get the mult valuable from inputs
     mult = runner.getIntegerArgumentValue("mult",user_arguments)
     puts "The zone multiplier has been set to #{mult}"
     
-    any_in_selection = false
+    any_in_selection = false # flag to throw and error if nothing is selected
+    # iterate through each space of the model
     model.getSpaces.each do |space|
-      next if not runner.inSelection(space)
-      any_in_selection = true
-      space_zone = space.thermalZone
-      space_zone = space_zone.get
-      space_zone.setMultiplier(mult)
+      next if not runner.inSelection(space) # if not selected than skip this space
+      any_in_selection = true # change flag 
+      space_zone = space.thermalZone # find the space's thermal zone
+      space_zone = space_zone.get # get the space's thermal zone
+      space_zone.setMultiplier(mult) # set the multiplier of the thermal zone
     end
     
+    # displace an error if no spaces are selected
     if not any_in_selection
       runner.registerAsNotApplicable("No thermal zones in current selection. Please select thermal zones.")
     end
